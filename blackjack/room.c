@@ -83,21 +83,23 @@ int pushRoom(Room **headRoom, int status, char* password, Player creator_room)
 	return id;
 }
 
-void removeRoom(Room *headRoom, int id)
+void removeRoom(Room **headRoom, int id)
 {
-	Room *r = getRoombyID(headRoom,id);
+	Room *r = getRoombyID(*headRoom,id);
 	if(r == NULL)
 		return;
-	if(r->id == headRoom->id)
+	if(r->id == (*headRoom)->id)
 	{
-		headRoom = headRoom->next;
-		if(headRoom == NULL)
-			headRoom = makeListRoom();
+		*headRoom = (*headRoom)->next;
+		if(*headRoom == NULL){
+			*headRoom = makeListRoom();
+			printf("%d\n", (*headRoom)->id);
+		}
 		printf("Delete head\n");
 	}
 	else if(r->next == NULL)
 	{	
-		r = headRoom;
+		r = *headRoom;
 		while(r->next->next!=NULL)
 			r = r->next;
 		r->next = NULL;
@@ -105,7 +107,7 @@ void removeRoom(Room *headRoom, int id)
 	}
 	else
 	{
-		r = headRoom;
+		r = *headRoom;
 		while(r->next->id!= id)
 		{
 			r = r->next;

@@ -165,9 +165,8 @@ char *listRoomRes()
 	int temp,i = 0;
 	char *str = (char*)calloc(20,sizeof(char));
 	Room *r = headRoom;
-	if (r == NULL){
-		return str;
-	}
+	printf("%d\n", r->id);
+	if (r->id == 0) return str;
 	while(r!=NULL)
 	{
 		if(r->canPlay==0)
@@ -382,7 +381,8 @@ void processScore(int id)
 		printf("%d\n", user->score);
 	}
 	updateUser();
-	removeRoom(headRoom,id);
+	removeRoom(&headRoom,id);
+	printf("%d\n", headRoom->id);
 }
 int processGetScore(char *msg)
 {
@@ -423,6 +423,7 @@ int startGameProcess(char *msg){
 	}
 	Room *r = getRoombyID(headRoom,id);
 	setDeckToRoom(r);
+	r->canPlay = 1;
 	return id;
 }
 

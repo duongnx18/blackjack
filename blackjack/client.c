@@ -333,8 +333,6 @@ void showListRoom(char *msg)
 	int i = 0,j,lenght = strlen(msg);
 	int id = 0,status = 0;
 	char *temp = (char*)calloc(5,sizeof(char));
-	printf("%d\n", lenght);
-	printf("%s\n",msg);
 	printf("ID\tStatus\n");
 	while(i<lenght)
 	{

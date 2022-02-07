@@ -224,6 +224,9 @@ int* processStand(char *msg, int turner[]){
 	turn += msg[i]-'0';
 	turner[0] = id;
 	Room *r = getRoombyID(headRoom,id);
+	if(msg[0] == '0' + SURRENDER){
+		r->bet[turn] -= 3*r->bet[turn]/2;
+	}
 	if (turn < r->slot -1){
 		turner[1] = turn+1;
 	}else turner[1] = 0;
@@ -239,7 +242,9 @@ int* processHit(char *msg, int card[]){
 	i++;
 	turn += msg[i]-'0';
 	Room *r = getRoombyID(headRoom,id);
-
+	if(msg[0] == '0' + DOUBLE){
+		r->bet[turn] *= 2;
+	}
 	r->player[turn].hand[r->player[turn].ncard++] = newcard(r->deck[r->ncard++]);
 	card[0] = id;
 	card[1] = turn;
@@ -356,11 +361,17 @@ void processScore(int id)
 		User *user = getUserByNickName(headUser,r->player[i].nickname);
 		printf("%d\n", user->score);
 		printf("%d\n", r->bet[i]);
-		if (playerPoint > 21){
+		if (r->bet[i] < 0){
+			user->score += r->bet[i];
+		}
+		else if (playerPoint > 21){
 			user->score -= r->bet[i];
 		}
-		else if (playerPoint == 21 && r->player[i].ncard == 2 && r->ncardealer > 2){
-			user->score += 3*r->bet[i]/2;
+		else if (playerPoint == 21 && r->player[i].ncard == 2){
+			if(dealerPoint!= 21 || r->ncardealer > 2)
+			{
+				user->score += 3*r->bet[i]/2;
+			}
 		}
 		else if (playerPoint == 21 && r->player[i].ncard > 2){
 			if (playerPoint > dealerPoint || dealerPoint > 21){
@@ -517,6 +528,16 @@ char *hitRes(int card[]){
 	char *str = (char*)calloc(48,sizeof(char));
 	char *temp = (char*)calloc(20,sizeof(char));
 	str[0] = '0' + HIT_RES;
+	str[1] = ' ';
+	sprintf(temp,"%d %d %d %d",card[0], card[1], card[2], card[3]);
+	strcat(str, temp);
+	//printf("%s\n",str);
+	return str;
+}
+char *doubleRes(int card[]){
+	char *str = (char*)calloc(48,sizeof(char));
+	char *temp = (char*)calloc(20,sizeof(char));
+	str[0] = '0' + DOU_RES;
 	str[1] = ' ';
 	sprintf(temp,"%d %d %d %d",card[0], card[1], card[2], card[3]);
 	strcat(str, temp);
@@ -865,6 +886,68 @@ int main()
 									}
 									break;
 								}
+								case DOUBLE:
+								{
+									int card[5];
+									processHit(buff, card);
+									if (Link[card[0]].i1 != -9)
+									{
+										send(fds[Link[card[0]].i1],doubleRes(card),50,0);
+									}
+									if (Link[card[0]].i2 != -9)
+									{
+										send(fds[Link[card[0]].i2],doubleRes(card),50,0);
+									}
+									if (Link[card[0]].i3 != -9)
+									{
+										send(fds[Link[card[0]].i3],doubleRes(card),50,0);
+									}
+									if (Link[card[0]].i4 != -9)
+									{
+										send(fds[Link[card[0]].i4],doubleRes(card),50,0);
+									}
+									break;
+								}
+								case SURRENDER:
+								{	
+									int turn[2];
+									
+									processStand(buff, turn);
+									if (turn[1] == 1){
+										send(fds[Link[turn[0]].i2],turnRes(),50,0);
+									}
+									else if (turn[1] == 2){
+										send(fds[Link[turn[0]].i3],turnRes(),50,0);
+									}
+									else if (turn[1] == 3){
+										send(fds[Link[turn[0]].i4],turnRes(),50,0);
+									} else {
+										int card[20];
+										for (int i = 0; i < 20; ++i)
+										{
+											card[i] = -1;
+										}
+										processDealer(turn[0], card);
+										if (Link[card[0]].i1 != -9)
+										{
+											send(fds[Link[card[0]].i1],dealerRes(card),50,0);
+										}
+										if (Link[card[0]].i2 != -9)
+										{
+											send(fds[Link[card[0]].i2],dealerRes(card),50,0);
+										}
+										if (Link[card[0]].i3 != -9)
+										{
+											send(fds[Link[card[0]].i3],dealerRes(card),50,0);
+										}
+										if (Link[card[0]].i4 != -9)
+										{
+											send(fds[Link[card[0]].i4],dealerRes(card),50,0);
+										}
+										processScore(turn[0]);
+									}
+									break;	
+								}
 								case STAND:
 								{	
 									int turn[2];
@@ -903,8 +986,6 @@ int main()
 										}
 										processScore(turn[0]);
 									}
-
-
 									break;	
 								}
 								// case RAISE:

@@ -281,6 +281,12 @@ char *makePlayMessage(int option, int id, int turn)
 	else if(option == 2){
 		str[0] = '0' + STAND;
 	}
+	else if(option == 3){
+		str[0] = '0' + DOUBLE;
+	}
+	else if(option == 4){
+		str[0] = '0' + SURRENDER;
+	}
 	str[1] = ' ';
 	sprintf(temp,"%d",id);
 	while(i-2 < strlen(temp))

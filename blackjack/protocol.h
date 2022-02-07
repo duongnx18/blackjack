@@ -13,12 +13,12 @@ typedef enum{
 	GETLIST,
 	JOINROOM,
 	BET,
-	ENDGAME,
-	PLUS,
 	GETSCORE,
 	START,
 	HIT,
-	STAND
+	STAND,
+	DOUBLE,
+	SURRENDER
 }MSG_TYPE;
 
 typedef enum{
@@ -34,6 +34,8 @@ typedef enum{
 	SCORE_RES,
 	TURN_RES,
 	HIT_RES,
+	SUR_RES,
+	DOU_RES,
 	DEA_RES
 }RES_TYPE;
 

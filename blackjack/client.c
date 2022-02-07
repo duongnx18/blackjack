@@ -112,7 +112,7 @@ void startProcess(char *msg){
 int playProcess(char *msg, int turn){
 	int option;
 	int i = 0, turner = 0;
-	if(msg[i] == '0' + HIT_RES){
+	if(msg[i] == '0' + HIT_RES || msg[i] == '0' + DOU_RES){
 		int card = 0, id = 0;
 		while(msg[i+2]!= ' '){
 			id *= 10;
@@ -207,24 +207,27 @@ int playProcess(char *msg, int turn){
 			printf("Lose\n");
 		}
 		if(msg[0] == '0' + DEA_RES){
-			if (Point[i+1] < 21 && Point[i+1] > Point[0]){
+			if (Point[i+1] == 0){
+				printf("Surrender\n");
+			}
+			else if (Point[i+1] < 21 && Point[i+1] > Point[0]){
 				printf("Win\n");
 			}
-			if (Point[i+1] < 21 && Point[0] > 21){
+			else if (Point[i+1] < 21 && Point[0] > 21){
 				printf("Win\n");
 			}
-			if (Point[i+1] < 21 && Point[i+1] == Point[0]){
+			else if (Point[i+1] < 21 && Point[i+1] == Point[0]){
 				printf("Push\n");
 			}
-			if (Point[i+1] < 21 && Point[i+1] < Point[0] && Point[0] <= 21){
+			else if (Point[i+1] < 21 && Point[i+1] < Point[0] && Point[0] <= 21){
 				printf("Lose\n");
 			}
-			if(Point[i+1] == 21 && ncard[i+1] > 2){
+			else if(Point[i+1] == 21 && ncard[i+1] > 2){
 				if(Point[i+1] > Point[0] || Point[0] > 21){
 					printf("Win\n");
 				}
 
-				if (Point[i+1] == Point[0] && ncard[0] > 2){
+				else if (Point[i+1] == Point[0] && ncard[0] > 2){
 					printf("Push\n");
 				} else if (Point[i+1] == Point[0] && ncard[0] == 2){
 					printf("Lose\n");
@@ -245,13 +248,20 @@ int playProcess(char *msg, int turn){
 		return 0;
 	}
 	if(turn == turner || msg[i] == '0' + TURN_RES){
-		if (Point[turn+1] >= 21){
+		if (Point[turn+1] >= 21 || msg[0] == '0' + DOU_RES){
 			return 2;
 		}
 		printf("1.Hit\n");
 		printf("2.Stand\n");
+		if(ncard[turn+1] == 2) {
+			printf("3.Double\n");
+			printf("4.Surrender\n");
+		}
 		printf("Enter your option:");
 		scanf("%d", &option);
+		if (option == 4){
+			Point[turn+1] = 0;
+		}
 		return option;
 	}
 	else {
@@ -535,6 +545,7 @@ int main()
 			    msg[rcvsize] = '\0';
 			    while(1){
 			    	system("clear");
+			    	printf("%s\n",msg);
 			    	int choice = playProcess(msg,turn);
 			    	if (choice != 0)
 				    {

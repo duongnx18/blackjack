@@ -265,6 +265,38 @@ int* processDealer(int id, int card[]){
 	}
 	return card;
 }
+void processInsurance(char *msg){
+	int i = 2, turn, insurance = 0, id=0;
+	while(msg[i]!=' '&&i<strlen(msg))
+	{
+		insurance *=10;
+		insurance +=msg[i]-'0';
+		i++;
+	}
+	i++;
+	while(msg[i]!=' '){
+		id *=10;
+		id+=msg[i]-'0';
+		i++;
+	}
+	i++;
+	turn = msg[i]-'0';
+	Room *r = getRoombyID(headRoom,id);
+	User *user = getUserByNickName(headUser,r->player[turn].nickname);
+	printf("%d\n", user->score);
+	printf("%d\n", r->bet[turn]);
+	if(insurance == 3){
+		user->score -= r->bet[turn]/2;
+	}
+	if(insurance == 2){
+		user->score -= r->bet[turn];
+	}
+	printf("%d\n", user->score);
+	updateUser();
+	if(insurance <= 2){
+		removeRoom(&headRoom,id);
+	}
+}
 int processBet(char *msg, int card[]){
 	int i = 2, turn, point = 0, id=0;
 	while(msg[i]!=' '&&i<strlen(msg))
@@ -284,9 +316,9 @@ int processBet(char *msg, int card[]){
 	Room *r = getRoombyID(headRoom,id);
 	
 	r->bet[turn] = point;
-	printf("%d\n", point);
-	printf("%d\n", turn);
-	printf("%d\n", r->bet[turn]);
+	//printf("%d\n", point);
+	//printf("%d\n", turn);
+	//printf("%d\n", r->bet[turn]);
 	int j = 0;
 	if (r->ncard == 0){	
 		for (; j < r->slot ; ++j)
@@ -296,7 +328,7 @@ int processBet(char *msg, int card[]){
 			r->player[j].ncard = 2;
 			r->ncard += 2;
 		}
-
+		//r->deck[j] = 0;
 		r->dealerHand[0] = newcard(r->deck[j]);
 		r->dealerHand[1] = newcard(r->deck[j + 1 + r->slot]);
 		r->ncardealer = 2;
@@ -400,7 +432,7 @@ void processScore(int id)
 	}
 	updateUser();
 	removeRoom(&headRoom,id);
-	printf("%d\n", headRoom->id);
+	//printf("%d\n", headRoom->id);
 }
 int processGetScore(char *msg)
 {
@@ -885,6 +917,11 @@ int main()
 										send(fds[Link[card[0]].i1],betRes(card),50,0);
 										send(fds[Link[card[0]].i1],turnRes(),50,0);	
 									}
+									break;
+								}
+								case INSURANCE:
+								{
+									processInsurance(buff);
 									break;
 								}
 								case HIT:

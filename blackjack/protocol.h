@@ -18,7 +18,8 @@ typedef enum{
 	HIT,
 	STAND,
 	DOUBLE,
-	SURRENDER
+	SURRENDER,
+	INSURANCE
 }MSG_TYPE;
 
 typedef enum{
@@ -62,6 +63,7 @@ char *makeCreateRoomMessage(char* nickname);
 char *getAvailableRoomMessage();
 char *makeJoinRoomMessage(char *nickname);
 char *makeBetMessage(int newbet, int id, int turn);
+char *makeInsuranceMessage(int insurance, int id, int turn);
 char *makePlayMessage(int option, int id, int turn);
 char *getScoreMessage(char *nickname);
 

@@ -38,7 +38,7 @@ void SignIU()
 }
 
 
-void startProcess(char *msg){
+int startProcess(char *msg){
 	int i = 0, id = 0, card[20] = {0};
 	while(msg[i+2]!= ' '){
 		id *= 10;
@@ -66,7 +66,7 @@ void startProcess(char *msg){
 		//printf("%d\n", card[j]);
 		i++;
 	}
-	
+	//card[slot] = 0;
 	Card start[20];
 	for(int k =0; k< 2*slot + 2; k++){
 		start[k] = newcard(card[k]);
@@ -76,9 +76,7 @@ void startProcess(char *msg){
 	deck[0][1] = start[2*slot+1];
 	ncard[0] = 2;
 	display_state(deck[0], 1);
-	if (Point[0] == 21){
-			printf("Blackjack\n");
-	}
+	
 	// printf("------------------\n");
 	// printf("|%s\t| |%s\t|\n",start[slot].showvalue,start[2*slot+1].showvalue);
 	// printf("|%s\t| |%s\t|\n",start[slot].showtype,start[2*slot+1].showtype);
@@ -98,15 +96,42 @@ void startProcess(char *msg){
 		printf("Sum: %d\n", Point[i+1]);
 		if (Point[i+1] == 21){
 			printf("Blackjack\n");
-			if (Point[0] < 21){
-				printf("Win\n");
-			}else{
-				printf("Push\n");
+			
+		}
+	}
+	char insurance[2];
+	if (deck[0][0].value == 1){
+		printf("Do you want to buy Insurance(y/n)?:");
+		scanf("%s", insurance);
+		if (Point[0] < 21){
+			printf("Dealer NO BLACKJACK\n");
+			printf("Wait for your turn\n");	
+			if(strcmp(insurance,"y") == 0){
+				return 3;
+			}else return 4;
+
+		}else{
+			printf("Dealer Hand:\n");
+	
+			display_state(deck[0], 2);
+			printf("Dealer BLACKJACK\n");
+			for (int i = 0; i < slot; ++i)
+			{
+				printf("Player %d: %s's hand\n", i+1, Player[i]);
+				display_state(deck[i+1], ncard[i+1]);
+				printf("Sum: %d\n", Point[i+1]);
+				if (Point[i+1] == 21){
+					printf("Blackjack\n");		
+				}
 			}
+			
+			if(strcmp(insurance,"y") == 0){
+				return 1;
+			}else return 2;
 		}
 	}
 	printf("Wait for your turn\n");
-
+	return 0;
 
 }
 int playProcess(char *msg, int turn){
@@ -536,11 +561,17 @@ int main()
 			    send(sockfd,msg,strlen(msg),0);
 			    rcvsize = recv(sockfd,msg,MSG_SIZE,0);
 			    msg[rcvsize] = '\0';
-
+			    
 			    //printf("%s\n", msg);
 			    //playProcess(msg);
-			    startProcess(msg);
-			    
+			    int insurance = startProcess(msg);
+			    if (insurance != 0){
+			    	strcpy(msg,makeInsuranceMessage(insurance, atoi(id), turn));
+				    send(sockfd,msg,strlen(msg),0);
+				    if (insurance <=2){
+				    	break;
+				    }
+			    }
 			    rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
 			    msg[rcvsize] = '\0';
 			    while(1){
@@ -598,7 +629,14 @@ int main()
 			    	send(sockfd,msg,strlen(msg),0);
 			    	rcvsize = recv(sockfd,msg,MSG_SIZE,0);
 				    msg[rcvsize] = '\0';
-			    	startProcess(msg);
+			    	int insurance = startProcess(msg);
+				    if (insurance != 0){
+				    	strcpy(msg,makeInsuranceMessage(insurance, atoi(id), turn));
+					    send(sockfd,msg,strlen(msg),0);
+					    if (insurance <=2){
+					    	break;
+					    }
+				    }
 			    	rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
 				    msg[rcvsize] = '\0';
 				    while(1){

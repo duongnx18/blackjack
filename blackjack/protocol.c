@@ -270,6 +270,28 @@ char *makeBetMessage(int newbet, int id, int turn)
 	//printf("%s\n", str);
 	return str;
 }
+char *makeInsuranceMessage(int insurance, int id, int turn)
+{
+	int i = 2;
+	char *str = (char*)calloc(40,sizeof(char));
+	char *temp = (char*)calloc(20,sizeof(char));
+	str[0] = '0' + INSURANCE;
+	str[1] = ' ';
+	sprintf(temp,"%d",insurance);
+	while(i-2 < strlen(temp))
+	{
+		str[i] = temp[i-2];
+		i++;
+	}
+	str[i] = ' ';
+	//printf("%d", turn);
+	sprintf(temp,"%d ",id);
+	strcat(str, temp);
+	sprintf(temp,"%d",turn);
+	strcat(str, temp);
+	//printf("%s\n", str);
+	return str;
+}
 char *makePlayMessage(int option, int id, int turn)
 {
 	int i = 2;

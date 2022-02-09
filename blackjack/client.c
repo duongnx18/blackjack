@@ -76,7 +76,7 @@ void startProcess(char *msg){
 	deck[0][1] = start[2*slot+1];
 	ncard[0] = 2;
 	display_state(deck[0], 1);
-	if (Point[i+1] == 21){
+	if (Point[0] == 21){
 			printf("Blackjack\n");
 	}
 	// printf("------------------\n");
@@ -545,7 +545,7 @@ int main()
 			    msg[rcvsize] = '\0';
 			    while(1){
 			    	system("clear");
-			    	printf("%s\n",msg);
+			    	//printf("%s\n",msg);
 			    	int choice = playProcess(msg,turn);
 			    	if (choice != 0)
 				    {

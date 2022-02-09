@@ -265,7 +265,7 @@ int* processDealer(int id, int card[]){
 	}
 	return card;
 }
-int* processBet(char *msg, int card[]){
+int processBet(char *msg, int card[]){
 	int i = 2, turn, point = 0, id=0;
 	while(msg[i]!=' '&&i<strlen(msg))
 	{
@@ -318,7 +318,14 @@ int* processBet(char *msg, int card[]){
 		card[k+3] = r->deck[i];
 		k++;
 	}
-	return card;
+	int count = 0;
+	for (int i = 0; i < 4; ++i)
+	{
+		if(r->bet[i] > 0){
+			count++;
+		}
+	}
+	return count;
 }
 int processCreateRoom(char *msg)
 {
@@ -368,7 +375,7 @@ void processScore(int id)
 			user->score -= r->bet[i];
 		}
 		else if (playerPoint == 21 && r->player[i].ncard == 2){
-			if(dealerPoint!= 21 || r->ncardealer > 2)
+			if(dealerPoint != 21 || r->ncardealer > 2)
 			{
 				user->score += 3*r->bet[i]/2;
 			}
@@ -857,10 +864,26 @@ int main()
 									{
 										card[i] = -1;
 									}
-									//processBet(buff);	
-									send(fds[i],betRes(processBet(buff, card)),50,0);
-									if (i == Link[card[0]].i1){
-										send(fds[i],turnRes(),50,0);
+									int count = processBet(buff, card);
+									
+									if (card[1] == 4 && count == 4){
+										send(fds[Link[card[0]].i1],betRes(card),50,0);
+										send(fds[Link[card[0]].i2],betRes(card),50,0);
+										send(fds[Link[card[0]].i3],betRes(card),50,0);
+										send(fds[Link[card[0]].i4],betRes(card),50,0);
+										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+									}else if (card[1] == 3 && count == 3){
+										send(fds[Link[card[0]].i1],betRes(card),50,0);
+										send(fds[Link[card[0]].i2],betRes(card),50,0);
+										send(fds[Link[card[0]].i3],betRes(card),50,0);
+										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+									}else if (card[1] == 2 && count == 2){
+										send(fds[Link[card[0]].i1],betRes(card),50,0);
+										send(fds[Link[card[0]].i2],betRes(card),50,0);
+										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+									}else if (card[1] == 1 && count == 1){
+										send(fds[Link[card[0]].i1],betRes(card),50,0);
+										send(fds[Link[card[0]].i1],turnRes(),50,0);	
 									}
 									break;
 								}

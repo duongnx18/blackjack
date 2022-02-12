@@ -158,6 +158,7 @@ char *signIURes(RES_TYPE type,VALUE_RES res,char *nickname)
 		i++;
 	}
 	msg[i] = '\0';
+	printf("%s\n",msg);
 	return msg;
 }
 char *listRoomRes()
@@ -184,6 +185,7 @@ char *listRoomRes()
 		r = r->next;
 	}
 	str[i-1] = '\0';
+	printf("%s\n",str);
 	return str;
 }
 char *createRoomRes(int ruler)
@@ -200,17 +202,10 @@ char *createRoomRes(int ruler)
 		id/=10;
 	}
 	msg[i] = '\0';
+	printf("%s\n",msg);
 	return msg;
 }
-int getIdbyIndex(int socket)
-{
-	for(int i = 1; i < 20; i++)
-	{
-		if(socket == Link[i].i1||socket == Link[i].i2)
-			return i;
-	}
-	return 0;
-}
+
 
 
 int* processStand(char *msg, int turner[]){
@@ -230,6 +225,7 @@ int* processStand(char *msg, int turner[]){
 	if (turn < r->slot -1){
 		turner[1] = turn+1;
 	}else turner[1] = 0;
+
 	return turner;
 }
 int* processHit(char *msg, int card[]){
@@ -265,7 +261,7 @@ int* processDealer(int id, int card[]){
 	}
 	return card;
 }
-void processInsurance(char *msg){
+void processInsurance(char *msg, int room[]){
 	int i = 2, turn, insurance = 0, id=0;
 	while(msg[i]!=' '&&i<strlen(msg))
 	{
@@ -283,6 +279,8 @@ void processInsurance(char *msg){
 	turn = msg[i]-'0';
 	Room *r = getRoombyID(headRoom,id);
 	User *user = getUserByNickName(headUser,r->player[turn].nickname);
+	room[0] = id;
+	room[1] = r->slot;
 	printf("%d\n", user->score);
 	printf("%d\n", r->bet[turn]);
 	if(insurance == 3){
@@ -294,7 +292,7 @@ void processInsurance(char *msg){
 	printf("%d\n", user->score);
 	updateUser();
 	if(insurance <= 2){
-		removeRoom(&headRoom,id);
+		room[turn+2] = 1;
 	}
 }
 int processBet(char *msg, int card[]){
@@ -461,6 +459,7 @@ char *scoreMessage(int score)
 		i++;
 	}
 	str[i] = '\0';
+	printf("%s\n",str);
 	return str;
 }
 int startGameProcess(char *msg){
@@ -570,7 +569,7 @@ char *hitRes(int card[]){
 	str[1] = ' ';
 	sprintf(temp,"%d %d %d %d",card[0], card[1], card[2], card[3]);
 	strcat(str, temp);
-	//printf("%s\n",str);
+	printf("%s\n",str);
 	return str;
 }
 char *doubleRes(int card[]){
@@ -580,7 +579,7 @@ char *doubleRes(int card[]){
 	str[1] = ' ';
 	sprintf(temp,"%d %d %d %d",card[0], card[1], card[2], card[3]);
 	strcat(str, temp);
-	//printf("%s\n",str);
+	printf("%s\n",str);
 	return str;
 }
 char *startGameRes(int id, int turn)
@@ -605,7 +604,7 @@ char *startGameRes(int id, int turn)
 	strcat(str, temp);
 	sprintf(temp," %d",turn);
 	strcat(str, temp);
-	//printf("%s\n",str);
+	printf("%s\n",str);
 	return str;
 }
 char *noticeRes(int id)
@@ -635,7 +634,7 @@ char *noticeRes(int id)
 		str[i++] = ' ';
 	}
 	str[i-1] = '\0';
-	//printf("%s %ld\n",str , strlen(str));
+	printf("%s\n",str);
 	return str;
 }
 char *joinRoomRes(VALUE_RES res,int id)
@@ -672,7 +671,7 @@ char *joinRoomRes(VALUE_RES res,int id)
 		str[i++] = ' ';
 	}
 	str[i-1] = '\0';
-	//printf("%s %ld\n",str , strlen(str));
+	printf("%s\n",str);
 	return str;
 }
 
@@ -921,7 +920,17 @@ int main()
 								}
 								case INSURANCE:
 								{
-									processInsurance(buff);
+									int room[6] = {0};
+									int count = 0;
+									processInsurance(buff, room);
+									for(int i = 2; i < 6; i++){
+										if(room[i] != 0){
+											count++;
+										}
+									}
+									if (count == room[1]){
+										removeRoom(&headRoom, room[0]);
+									}
 									break;
 								}
 								case HIT:
@@ -1085,6 +1094,7 @@ int main()
 								{
 									ruler = processGetScore(buff);
 									send(fds[i],scoreMessage(ruler),10,0);
+
 									break;
 								}
 							}

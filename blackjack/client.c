@@ -410,6 +410,7 @@ char* showIDCreatedRoom(char *msg, char id[])
 
 int getScore(char *msg)
 {
+	printf("%s\n", msg);
 	int i = 2;
 	int score = 0;
 	while(i < strlen(msg))
@@ -565,6 +566,8 @@ int main()
 			    //printf("%s\n", msg);
 			    //playProcess(msg);
 			    int insurance = startProcess(msg);
+			    rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
+			    msg[rcvsize] = '\0';
 			    if (insurance != 0){
 			    	strcpy(msg,makeInsuranceMessage(insurance, atoi(id), turn));
 				    send(sockfd,msg,strlen(msg),0);
@@ -572,8 +575,7 @@ int main()
 				    	break;
 				    }
 			    }
-			    rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
-			    msg[rcvsize] = '\0';
+			    
 			    while(1){
 			    	system("clear");
 			    	//printf("%s\n",msg);
@@ -630,6 +632,8 @@ int main()
 			    	rcvsize = recv(sockfd,msg,MSG_SIZE,0);
 				    msg[rcvsize] = '\0';
 			    	int insurance = startProcess(msg);
+			    	rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
+				    msg[rcvsize] = '\0';
 				    if (insurance != 0){
 				    	strcpy(msg,makeInsuranceMessage(insurance, atoi(id), turn));
 					    send(sockfd,msg,strlen(msg),0);
@@ -637,8 +641,7 @@ int main()
 					    	break;
 					    }
 				    }
-			    	rcvsize = recv(sockfd,msg,MSG_SIZE,MSG_DONTWAIT);
-				    msg[rcvsize] = '\0';
+			    	
 				    while(1){
 				    	system("clear");
 				    	int choice = playProcess(msg,turn);
@@ -678,6 +681,7 @@ int main()
 				strcpy(msg,getScoreMessage(nickname));
 				send(sockfd,msg,strlen(msg),0);
 				rcvsize = recv(sockfd,msg,MSG_SIZE,0);
+				msg[rcvsize] = '\0';
 				plus = getScore(msg);
 				printf("Your score is %d\n",plus);
 				break;

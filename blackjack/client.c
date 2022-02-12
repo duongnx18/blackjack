@@ -410,7 +410,7 @@ char* showIDCreatedRoom(char *msg, char id[])
 
 int getScore(char *msg)
 {
-	printf("%s\n", msg);
+	//printf("%s\n", msg);
 	int i = 2;
 	int score = 0;
 	while(i < strlen(msg))

@@ -337,7 +337,14 @@ char *getScoreMessage(char *nickname)
 	str[i] = '\0';
 	return str;
 }
-
+char *getHighScoreMessage()
+{
+	int i = 2;
+	char *str = (char*)calloc(5,sizeof(char));
+	str[0] = '0' + HIGHSCORE;
+	str[1] = '\0';
+	return str;
+}
 char *getLogOutMessage(char *nickname)
 {
 	int i = 2;

@@ -15,6 +15,8 @@
 #define PORT 6666	
 User* headUser = NULL;
 Room *headRoom = NULL;
+int score[100] = {0};
+char nick[100][30];
 typedef struct{
 	int i1;
 	int i2;
@@ -35,17 +37,24 @@ void LoadUser()
 	fclose(file);
 }
 
-void updateUser()
+int updateUser()
 {
 	FILE* file = fopen("user.txt","w");
 	User *temp = headUser;
+	int i = 0;
 	while(temp->next!=NULL)
 	{
+		score[i] = temp->score;
+		strcpy(nick[i], temp->nickname);
+		i++;
 		fprintf(file,"%s %s %s %d\n",temp->username,temp->password,temp->nickname,temp->score);
 		temp=temp->next;
 	}
+	score[i] = temp->score;
+	strcpy(nick[i], temp->nickname);
 	fprintf(file,"%s %s %s %d",temp->username,temp->password,temp->nickname,temp->score);
 	fclose(file);
+	return i+1;
 }
 
 void fds_add(int fds[],int fd)
@@ -432,6 +441,34 @@ void processScore(int id)
 	removeRoom(&headRoom,id);
 	//printf("%d\n", headRoom->id);
 }
+int processHighScore()
+{
+	int n = updateUser();
+	//printf("%d\n", n);
+	int tmpscore;
+	char tmpnick[30];
+	for(int i=0; i<n; i++)
+    {
+        for(int j=i+1; j<n; j++)
+        {
+            if(score[i] < score[j])
+            {
+                tmpscore = score[i];
+                score[i] = score[j];
+                score[j] = tmpscore;
+                bzero(tmpnick, 30);
+                strcpy(tmpnick,nick[i]);
+                bzero(nick[i], 30);
+                strcpy(nick[i],nick[j]);
+                bzero(nick[j], 30);
+                strcpy(nick[j],tmpnick);
+                //printf("%d %d %s %s\n", score[i], score[j],nick[i], nick[j]);
+            }
+        }
+    }
+    //printf("done\n");
+    return n;
+}
 int processGetScore(char *msg)
 {
 	int i = 2;
@@ -472,6 +509,40 @@ char *scoreMessage(int score)
 		str[i] = temp[i-2];
 		i++;
 	}
+	str[i] = '\0';
+	printf("%s\n",str);
+	return str;
+}
+char *highScoreMessage(int n)
+{
+	int i = 2;
+	int k = 0;
+	char *str = (char*)calloc(400,sizeof(char));
+	char *temp = (char*)calloc(40,sizeof(char));
+	
+	str[0] = '0' + HIGH_RES;
+	str[1] = ' ';
+	if (n > 10){
+		n = 10;
+	}
+	for (int j = 0; j < n; ++j)
+	{
+		sprintf(temp,"%d-",score[j]);
+		k = 0;
+		while(k <strlen(temp))
+		{
+			str[i++] = temp[k++];
+			
+		}
+		sprintf(temp,"%s",nick[j]);
+		k = 0;
+		while(k <strlen(temp))
+		{
+			str[i++] = temp[k++];	
+		}
+		str[i++] = ' ';
+	}
+	
 	str[i] = '\0';
 	printf("%s\n",str);
 	return str;
@@ -1076,7 +1147,13 @@ int main()
 									processLogOut(buff);
 									break;
 								}
-								
+								case HIGHSCORE:
+								{
+									//printf("100000\n");
+									int n = processHighScore();
+									send(fds[i],highScoreMessage(n),400,0);
+									break;
+								}
 								case GETSCORE:
 								{
 									ruler = processGetScore(buff);

@@ -21,7 +21,8 @@ void menu()
 	printf("1. Create room\n");
 	printf("2. Join room\n");
 	printf("3. See score\n");
-	printf("4. Log out\n");
+	printf("4. High score\n");
+	printf("5. Log out\n");
 	printf("***************************************\n");
 	printf("Enter your choice:  ");
 }
@@ -320,6 +321,31 @@ void waitProcess(char *msg){
 		k++;
 	}
 }
+void highScoreProcess(char *msg){
+	//printf("%s\n", msg);
+	char *nickname = (char*)calloc(30,sizeof(char));
+	int i = 2, j, k = 1, score = 0;
+	printf("Rank\tScore\t\tNickname\n");
+	while(msg[i]!='\0'){
+		bzero(nickname,30);
+		score = 0;
+		while(msg[i]!= '-'){
+			score *= 10;
+			score += msg[i] - '0';
+			i++;
+		}
+		j = ++i;
+		while(msg[i]!=' ' && msg[i]!='\0')
+		{
+			nickname[i-j] = msg[i];
+			i++;
+		}
+		nickname[i-j] = '\0';
+		i++;
+		printf("%-4d\t%-10d\t%s\n", k, score, nickname);
+		k++;
+	}
+}
 int betProcess(char *msg, int *turn){
 	char *nickname = (char*)calloc(20,sizeof(char));
 	int i = 0;
@@ -526,7 +552,7 @@ int main()
 		slot = 0;
 		menu();
 		scanf("%d",&choice);
-		while(choice<1||choice>4)
+		while(choice<1||choice>5)
 		{
 			printf("Invalid selection. Re-enter:  ");
 			scanf("%d",&choice);
@@ -693,6 +719,16 @@ int main()
 				break;
 			}
 			case 4:
+			{
+				strcpy(msg,getHighScoreMessage());
+				send(sockfd,msg,strlen(msg),0);
+				rcvsize = recv(sockfd,msg,MSG_SIZE,0);
+				msg[rcvsize] = '\0';
+				system("clear");
+				highScoreProcess(msg);
+				break;
+			}
+			case 5:
 			{
 				printf("Goodbye %s\n",nickname);
 				isLoged_in = 0;

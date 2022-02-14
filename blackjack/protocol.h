@@ -19,7 +19,8 @@ typedef enum{
 	STAND,
 	DOUBLE,
 	SURRENDER,
-	INSURANCE
+	INSURANCE,
+	LOGOUT
 }MSG_TYPE;
 
 typedef enum{
@@ -66,5 +67,6 @@ char *makeBetMessage(int newbet, int id, int turn);
 char *makeInsuranceMessage(int insurance, int id, int turn);
 char *makePlayMessage(int option, int id, int turn);
 char *getScoreMessage(char *nickname);
+char *getLogOutMessage(char *nickname);
 
 #endif

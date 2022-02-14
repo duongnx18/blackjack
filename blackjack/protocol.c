@@ -29,14 +29,14 @@ char *makeSignInMessage()
 	char *str1 = (char*)calloc(30,sizeof(char));
 	char *str2 = (char*)calloc(20,sizeof(char));
 	printf("Username: ");
-	gets(str1);
+	fgets(str1, 30, stdin);
 	while(checkString(str1)!=1)
 	{
 		if(checkString(str1)==0)
 			printf("Username cannot contain spaces\n");
 		else printf("Username cannot be empty\n");
 		printf("Username: ");
-		gets(str1);
+		fgets(str1, 30, stdin);
 	}
 	strcpy(str2,getpass("Password: "));
 	while(checkString(str2)==0)
@@ -48,7 +48,7 @@ char *makeSignInMessage()
 	char *str = (char*)calloc(total_length,sizeof(char));
 	int i = 1;
 	str[0] = '0' + LOGIN;
-	while(i < strlen(str1) + 1)
+	while(i < strlen(str1))
 	{
 		str[i] = str1[i-1];
 		i++;
@@ -57,7 +57,7 @@ char *makeSignInMessage()
 	i++;
 	while(i < total_length - 1)
 	{
-		str[i] = str2[i-strlen(str1)-2];
+		str[i] = str2[i-strlen(str1)-1];
 		i++;
 	}
 	str[i] = '\0';
@@ -72,14 +72,14 @@ char *makeSignUpMessage()
 	char *str2 = (char*)calloc(20,sizeof(char));
 	char *str3 = (char*)calloc(20,sizeof(char));
 	printf("Username: ");
-	gets(str1);
+	fgets(str1, 30, stdin);
 	while(checkString(str1)!=1)
 	{
 		if(checkString(str1)==0)
 			printf("Username cannot contain spaces\n");
 		else printf("Username cannot be empty\n");
 		printf("Username: ");
-		gets(str1);
+		fgets(str1, 30, stdin);
 	}
 	strcpy(str2,getpass("Password: "));
 	while(checkString(str2)==0)
@@ -88,18 +88,18 @@ char *makeSignUpMessage()
 		strcpy(str2,getpass("Password: "));
 	}
 	printf("Nickname: ");
-	gets(str3);
+	fgets(str3, 20, stdin);
 	while(checkString(str3)==0)
 	{
 		printf("Nickname cannot contain spaces\n");
 		printf("Nickname: ");
-		gets(str3);
+		fgets(str3, 20, stdin);
 	}
 	int total_length = strlen(str1) + strlen(str2) + strlen(str3) + 4;
 	char *str = (char*)calloc(total_length,sizeof(char));
 	int i = 1,j = 0;
 	str[0] = '0' + REGISTER;
-	while(j < strlen(str1))
+	while(j < strlen(str1)-1)
 	{
 		str[i] = str1[j];
 		i++;
@@ -117,7 +117,7 @@ char *makeSignUpMessage()
 	str[i] = ' ';
 	i++;
 	j = 0;
-	while(j < strlen(str3))
+	while(j < strlen(str3)-1)
 	{
 		str[i] = str3[j];
 		i++;
@@ -205,14 +205,14 @@ char* makeJoinRoomMessage(char *nickname)
 	char *password = (char*)calloc(20,sizeof(char));
 	getchar();
 	printf("Input ID:  ");
-	gets(id);
+	fgets(id, 3, stdin);
 	while(checkString(id)!=1)
 	{
 		if(checkString(id)==0)
 			printf("ID cannot contain spaces\n");
 		else printf("ID cannot be empty\n");
 		printf("ID: ");
-		gets(id);
+		fgets(id, 3, stdin);
 	}
 	strcpy(password,getpass("Password: "));
 	while(checkString(password)==0)
@@ -229,7 +229,7 @@ char* makeJoinRoomMessage(char *nickname)
 	}
 	str[i++] = ' ';
 	j = i;
-	while(i-j<strlen(id))
+	while(i-j<strlen(id)-1)
 	{
 		str[i] = id[i-j];
 		i++;
@@ -328,6 +328,21 @@ char *getScoreMessage(char *nickname)
 	int i = 2;
 	char *str = (char*)calloc(5,sizeof(char));
 	str[0] = '0' + GETSCORE;
+	str[1] = ' ';
+	while(i-2 < strlen(nickname))
+	{
+		str[i] = nickname[i-2];
+		i++;
+	}
+	str[i] = '\0';
+	return str;
+}
+
+char *getLogOutMessage(char *nickname)
+{
+	int i = 2;
+	char *str = (char*)calloc(5,sizeof(char));
+	str[0] = '0' + LOGOUT;
 	str[1] = ' ';
 	while(i-2 < strlen(nickname))
 	{

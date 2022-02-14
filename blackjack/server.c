@@ -445,6 +445,20 @@ int processGetScore(char *msg)
 	User *user = getUserByNickName(headUser,nickname);
 	return user->score;
 }
+void processLogOut(char *msg)
+{
+	int i = 2;
+	char *nickname = (char*)calloc(20,sizeof(char));
+	while(i < strlen(msg))
+	{
+		nickname[i-2] = msg[i];
+		i++;
+	}
+	nickname[i-2] = '\0';
+	User *user = getUserByNickName(headUser,nickname);
+	user->isLogin = 0;
+	return;
+}
 char *scoreMessage(int score)
 {
 	int i = 2;
@@ -902,19 +916,19 @@ int main()
 										send(fds[Link[card[0]].i2],betRes(card),50,0);
 										send(fds[Link[card[0]].i3],betRes(card),50,0);
 										send(fds[Link[card[0]].i4],betRes(card),50,0);
-										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+										
 									}else if (card[1] == 3 && count == 3){
 										send(fds[Link[card[0]].i1],betRes(card),50,0);
 										send(fds[Link[card[0]].i2],betRes(card),50,0);
 										send(fds[Link[card[0]].i3],betRes(card),50,0);
-										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+											
 									}else if (card[1] == 2 && count == 2){
 										send(fds[Link[card[0]].i1],betRes(card),50,0);
 										send(fds[Link[card[0]].i2],betRes(card),50,0);
-										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+										
 									}else if (card[1] == 1 && count == 1){
 										send(fds[Link[card[0]].i1],betRes(card),50,0);
-										send(fds[Link[card[0]].i1],turnRes(),50,0);	
+										
 									}
 									break;
 								}
@@ -1057,38 +1071,11 @@ int main()
 									}
 									break;	
 								}
-								// case RAISE:
-								// {
-								// 	int i2 = getOpponentIndex(i); 
-								// 	send(fds[i2],buff,res+1,0);
-								// 	break;
-								// }
-								// case ENDGAME:
-								// {
-								// 	int idd = getIdbyIndex(i);
-								// 	int i2 = Link[idd].i1 == i ? Link[idd].i2 : Link[idd].i1;
-								// 	ruler = processEnd(buff,idd);
-								// 	if(ruler == -1)
-								// 	{
-								// 		send(fds[i2],makeEndRes(ruler,idd,0),20,0);
-								// 	}
-								// 	else
-								// 	{
-								// 		if(i2 == Link[idd].i2)
-								// 		{
-								// 			send(fds[i],makeEndRes(ruler,idd,1),20,0);
-								// 			send(fds[i2],makeEndRes(ruler,idd,2),20,0);
-								// 		}
-								// 		else
-								// 		{
-								// 			send(fds[i],makeEndRes(ruler,idd,2),20,0);
-								// 			send(fds[i2],makeEndRes(ruler,idd,1),20,0);
-								// 		}
-								// 		Link[idd].i1 = 0;
-								// 		Link[idd].i2 = 0;
-								// 	} 
-								// 	break;
-								// }
+								case LOGOUT:
+								{
+									processLogOut(buff);
+									break;
+								}
 								
 								case GETSCORE:
 								{

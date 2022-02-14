@@ -274,6 +274,7 @@ int playProcess(char *msg, int turn){
 	}
 	if(turn == turner || msg[i] == '0' + TURN_RES){
 		if (Point[turn+1] >= 21 || msg[0] == '0' + DOU_RES){
+			printf("Wait\n");
 			return 2;
 		}
 		printf("1.Hit\n");
@@ -286,6 +287,10 @@ int playProcess(char *msg, int turn){
 		scanf("%d", &option);
 		if (option == 4){
 			Point[turn+1] = 0;
+		}
+		if (option >= 2){
+			system("clear");
+			playProcess("\0", 5);
 		}
 		return option;
 	}
@@ -626,6 +631,7 @@ int main()
 						msg[rcvsize] = '\0';
 						if(msg[0] =='0' + STA_RES) break;
 					}
+					system("clear");
 					int bet = betProcess(msg, &turn);
 			    	strcpy(msg,makeBetMessage(bet, atoi(id), turn));
 			    	send(sockfd,msg,strlen(msg),0);
@@ -690,6 +696,8 @@ int main()
 			{
 				printf("Goodbye %s\n",nickname);
 				isLoged_in = 0;
+				strcpy(msg,getLogOutMessage(nickname));
+				send(sockfd,msg,strlen(msg),0);
 				break;
 			}
 		}
